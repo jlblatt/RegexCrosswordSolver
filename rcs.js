@@ -35,7 +35,7 @@
       answers.push([]);
       for(var j = 0; j < clues[i].length; j++)
       {
-        answers[i].push(chars);
+        answers[i].push(null);
         clues[i][j] = new Regex(clues[i][j].getAttribute('title')); 
         remaining++;
       }
