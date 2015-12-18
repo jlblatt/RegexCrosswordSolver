@@ -1,107 +1,142 @@
 (function () {
 
-  var clues, p = [0, 0], solved = false;
+  var clues, solution, p = [0, 0];
   var startTime = new Date(), endTime, elapsedTime;
-  var maxGuesses = 9999999999999, guessCount = 0;
   
-  var allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  var chars = [];
-  for(var i = 0; i < allowedChars.length; i++)
-  {
-    chars.push(allowedChars.charCodeAt(i));
-  }
+  var chars = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+  var wildcard = "~";
   
-  //todo - prebuild array?
-
   function init()
   {
     jQuery.noConflict();
 
-    
-
-    //hexagonal puzzle
+    // hexagonal puzzle
     if(jQuery("form.puzzle-hexagonal").length > 0)
     {
-
+      // lol later
     }
 
-    //rectangular puzzle
+    // rectangular puzzle
     else
     {
       clues = [
-        jQuery("div.grid table thead tr th:gt(0) span"),
-        jQuery("div.grid table tbody tr th:even span")
+        jQuery("div.grid table tbody tr th:even span"),
+        jQuery("div.grid table thead tr th:gt(0) span")
       ];
     }
 
-    //change dom objects to regexs and setup clues array
+    // change dom objects to regexs and setup clues array
+    var dims = [];
     for(var i = 0; i < clues.length; i++)
     {
+      dims.push(clues[i].length);
       for(var j = 0; j < clues[i].length; j++)
       {
-        var startGuess = "";
-        var charCount = clues[(i + 1) % clues.length].length;
-        for(var z = 0; z < charCount; z++) startGuess += String.fromCharCode(chars[0]);
-
         clues[i][j] = {
-          regex: new RegExp(clues[i][j].getAttribute('title')),
-          guess: startGuess,
-          charCount : charCount,
-          charCurrVal : 0
-        };
+          string: clues[i][j].getAttribute('title')
+          regex: new RegExp(clues[i][j].getAttribute('title'))
+        }
       }
     }
 
-    solve();
+    // setup solution array
+    solution = createArray.apply(this, dims);
+
+    // prune the number of characters we need to check
+    for(var i = 0; i < solution.length; i++)
+    {
+      var xclue = clues[0][i].string;
+      var xcount = clues[1].length;
+
+      for(var j = 0; j < solution[i].length; j++)
+      {
+        var yclue = clues[1][j].string;
+        var ycount = clues[0].length;
+
+        solution[i][j] = chars;
+
+        for(var k = 0; k < solution[i][j].length; k++)
+        {
+          // setup the strings/regexes to test against
+          var xstring = '';
+          for(var x = 0; x < xcount; x++)
+          {
+            if(x == j) xstring += solution[i][j][k];
+            else xstring += wildcard;
+          }
+
+          var ystring = '';
+          for(var y = 0; y < ycount; y++)
+          {
+            if(y == 1) ystring += solution[i][j][k];
+            else ystring += wildcard;
+          }
+
+        }
+      }
+    }
+
+    //console.log(solution);
+
+    //solve();
 
   }
 
   function solve()
   {
-    guessCount++;
-    //console.log(clues[p[0]][p[1]].charCurrVal + ' /// ' + clues[p[0]][p[1]].guess);
+    var solved = false;
 
-    document.title = clues[p[0]][p[1]].guess + ' /// ' + clues[p[0]][p[1]].charCurrVal + ' /// ' + clues[p[0]][p[1]].guess
-
-    //does current regex match?
-    if(clues[p[0]][p[1]].regex.test(clues[p[0]][p[1]].guess))
+    // check for win condition - 2 possible ways to do this:
+    //
+    // 1) make sure only one character remains in every element of solution[]
+    //      -- quicker, but fails if there is more than one valid solution to a puzzle
+    //
+    // 2) run all regexs against the current state of solution[]
+    //      -- expensive, but works if there is more than one valid solution to a puzzle
+    //
+    // a final version of the algorithm should implement both in some manner
+    // for now, use 1) and assume each puzzle only has one solution
+    
+    check:
+    for(var i = 0; i < solution.length; i++)
     {
-      solved = true;
-      console.log(clues[p[0]][p[1]].guess);
-    }
-
-    //no match, increment and continue
-    else
-    {
-      if(clues[p[0]][p[1]].charCurrVal < Math.pow(chars.length, clues[p[0]][p[1]].charCount))
+      for(var j = 0; j < solution[i].length; j++)
       {
-        clues[p[0]][p[1]].charCurrVal++;
-        var newGuess = charValToGuess(clues[p[0]][p[1]].charCurrVal);
-        //pad
-        while(newGuess.length < clues[p[0]][p[1]].charCount) newGuess += String.fromCharCode(chars[0]);
-        clues[p[0]][p[1]].guess = newGuess;
+        if(solution[i][j].length > 1)
+        {
+          break check;
+        }
       }
     }
 
-    if(!solved && guessCount < maxGuesses) setTimeout(function(){solve()}, 0);
-    else
+    if(solved)
     {
       endTime = new Date();
       elapsedTime = (endTime - startTime) / 1000;
-      if(!solved)
-        alert("Exhausted " + guessCount + " guesses in " + elapsedTime + " seconds!");
-      else  
-        alert("Solved in " + elapsedTime + " seconds!");
+      alert("Solved in " + elapsedTime + " seconds!");
+      return;
     }
+
+    // the fun part
+
+    for(var i = 0; i < solution[p[0], p[1]].length; i++)
+    {
+
+    }
+
+    solve();
   }
 
-  function charValToGuess(c)
+  // http://stackoverflow.com/a/966938
+  function createArray(length) 
   {
-    //http://stackoverflow.com/questions/11089399/count-with-a-b-c-d-instead-of-0-1-2-3-with-javascript
-    var mod = c % chars.length,
-        pow = c / chars.length | 0,
-        out = mod ? String.fromCharCode(chars[mod - 1]) : (--pow, String.fromCharCode(chars[chars.length - 1]));
-    return pow ? charValToGuess(pow) + out : out;
+    var arr = new Array(length || 0), i = length;
+    if(arguments.length > 1)
+    {
+      var args = Array.prototype.slice.call(arguments, 1);
+      while(i--) arr[length-1 - i] = createArray.apply(this, args);
+    }
+    return arr;
   }
 
   var s = document.createElement("script");
