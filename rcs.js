@@ -10,6 +10,8 @@
   {
     chars.push(allowedChars.charCodeAt(i));
   }
+  
+  //todo - prebuild array?
 
   function init()
   {
