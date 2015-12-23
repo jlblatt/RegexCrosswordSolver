@@ -76,7 +76,7 @@
       }
     }
 
-    //console.log(solution);
+    console.log(solution);
 
     //solve();
 
@@ -121,7 +121,7 @@
 
     for(var i = 0; i < solution[p[0], p[1]].length; i++)
     {
-
+      //eliminate more letters if possible
     }
 
     solve();
