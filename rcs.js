@@ -25,7 +25,7 @@
       ];
     }
 
-    // change dom objects to regexs and setup clues array
+    // change dom objects to RegExps and setup clues array
     var dims = [];
     for(var i = 0; i < clues.length; i++)
     {
@@ -40,6 +40,10 @@
     solution = createMultiDimArray.apply(this, dims);
     zeroArray(solution);
 
+    //setup status
+    var maxGuesses = Math.pow(chars.length, dims.reduce(function (a, b) { return a * b; }, 1));
+    jQuery("h1.ng-binding").append('<br /><small style="font-style: italic;">Solving: <span id="rcs-guess">1</span> / ' + maxGuesses + '</small>');
+
     // solve
     solve();
 
@@ -50,12 +54,50 @@
     // check for win condition
     var solved = true;
 
+    //currently produces incorrect solution for beginner puzzle 1 : https://regexcrossword.com/challenges/beginner/puzzles/1
+    //returns [[7, 4] , [0, 5]] - which is close(ish?) to the actual solution of [[7, 4] , [11, 15]]
+
+    check:
+    for(var i = 0; i < clues.length; i++)
+    {
+      for(var j = 0; j < clues[i].length; j++)
+      {
+        // build word to test against RegExp
+        var word = '';
+
+        // need to recode this section to deal with arrays with more than 2 dimensions
+        if(i == 0)
+        {
+          for(var x = 0; x < solution[j].length; x++)
+          {
+            word += chars[solution[j][x]];
+          }
+        }
+
+        else if(i == 1)
+        {
+          for(var x = 0; x < solution.length; x++)
+          {
+            word += chars[solution[x][j]];
+          }
+        }
+
+        // run the test
+        if(!clues[i][j].test(word))
+        {
+          solved = false;
+          break check;
+        }
+      }
+    }
+
     if(solved)
     {
       // solution found
       endTime = new Date();
       elapsedTime = (endTime - startTime) / 1000;
       alert("Solved in " + elapsedTime + " seconds with " + guesses + " guesses!");
+      console.log(solution);
       return;
     }
 
@@ -63,9 +105,10 @@
     {
       // increment solution and continue
       guesses++;
+      jQuery("#rcs-guess").text(guesses);
       var incremented = {flag: false};
       incrementArray(solution, chars.length, incremented);
-      solve();
+      setTimeout(solve, 0);
     }
 
   }
