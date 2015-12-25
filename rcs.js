@@ -1,9 +1,8 @@
 (function () {
 
-  var clues, solution, p = [0, 0];
-  var startTime = new Date(), endTime, elapsedTime;
-
+  var clues, solution, guesses = 1;
   var chars = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+  var startTime = new Date(), endTime, elapsedTime;
 
   function init()
   {
@@ -38,45 +37,47 @@
     }
 
     // setup solution array
-    solution = createArray.apply(this, dims);
-    setInitialArrayState(solution);
+    solution = createMultiDimArray.apply(this, dims);
+    zeroArray(solution);
 
-    //solve();
+    // solve
+    solve();
 
   }
 
   function solve()
   {
-    var solved = false;
-
     // check for win condition
+    var solved = true;
 
     if(solved)
     {
+      // solution found
       endTime = new Date();
       elapsedTime = (endTime - startTime) / 1000;
-      alert("Solved in " + elapsedTime + " seconds!");
+      alert("Solved in " + elapsedTime + " seconds with " + guesses + " guesses!");
       return;
     }
 
-    // the fun part
-
-    for(var i = 0; i < solution[p[0], p[1]].length; i++)
+    else
     {
-
+      // increment solution and continue
+      guesses++;
+      var incremented = {flag: false};
+      incrementArray(solution, chars.length, incremented);
+      solve();
     }
 
-    solve();
   }
 
   // http://stackoverflow.com/a/966938
-  function createArray(length)
+  function createMultiDimArray(length)
   {
     var arr = new Array(length || 0), i = length;
     if(arguments.length > 1)
     {
       var args = Array.prototype.slice.call(arguments, 1);
-      while(i--) arr[length-1 - i] = createArray.apply(this, args);
+      while(i--) arr[length-1 - i] = createMultiDimArray.apply(this, args);
     }
     return arr;
   }
@@ -88,6 +89,24 @@
     {
       if(Array.isArray(arr[i])) zeroArray(arr[i]);
       else arr[i] = 0;
+    }
+  }
+
+  function incrementArray(arr, mod, incremented)
+  {
+    for(var i = 0; i < arr.length; i++)
+    {
+      if(Array.isArray(arr[i])) incrementArray(arr[i], mod, incremented);
+      else if(!incremented.flag)
+      {
+        arr[i]++;
+        if(arr[i] < mod)
+        {
+          incremented.flag = true;
+          return;
+        }
+        else arr[i] = 0;
+      }
     }
   }
 
