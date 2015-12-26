@@ -32,7 +32,7 @@
       dims.push(clues[i].length);
       for(var j = 0; j < clues[i].length; j++)
       {
-        clues[i][j] = new RegExp(clues[i][j].getAttribute('title'));
+        clues[i][j] = new RegExp('^' + clues[i][j].getAttribute('title') + '$');
       }
     }
 
@@ -53,9 +53,6 @@
   {
     // check for win condition
     var solved = true;
-
-    //currently produces incorrect solution for beginner puzzle 1 : https://regexcrossword.com/challenges/beginner/puzzles/1
-    //returns [[7, 4] , [0, 5]] - which is close(ish?) to the actual solution of [[7, 4] , [11, 15]]
 
     check:
     for(var i = 0; i < clues.length; i++)
