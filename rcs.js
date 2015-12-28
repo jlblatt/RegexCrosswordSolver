@@ -94,7 +94,8 @@
       endTime = new Date();
       elapsedTime = (endTime - startTime) / 1000;
       alert("Solved in " + elapsedTime + " seconds with " + guesses + " guesses!");
-      console.log(solution);
+      //console.log(solution);
+      //move solution into DOM and simulate click on verify
       return;
     }
 
