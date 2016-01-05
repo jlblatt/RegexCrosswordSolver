@@ -94,8 +94,25 @@
       endTime = new Date();
       elapsedTime = (endTime - startTime) / 1000;
       alert("Solved in " + elapsedTime + " seconds with " + guesses + " guesses!");
-      //console.log(solution);
-      //move solution into DOM and simulate click on verify
+
+      // need to recode this section to deal with arrays with more than 2 dimensions
+
+      var answerQueue = [];
+
+      for(var i = 0; i < solution.length; i++)
+      {
+        for(var j = 0; j < solution[i].length; j++)
+        {
+          answerQueue.push(solution[i][j]);
+        }
+      }
+
+      jQuery("input.char").each(function(){
+        jQuery(this).val(chars[answerQueue.shift()]);
+        angular.element(jQuery(this).get()).triggerHandler('input');
+      });
+
+      jQuery("button.validate").click();
       return;
     }
 
