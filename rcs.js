@@ -13,6 +13,8 @@
     {
       clues = [
         // lol later
+        alert("Sorry, hexagonal puzzles aren't supported yet!");
+        return;
       ];
     }
 

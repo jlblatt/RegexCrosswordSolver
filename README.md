@@ -1,7 +1,9 @@
 # RegexCrosswordSolver
 A javascript solver for [regexcrossword.com](regexcrossword.com)
 
-Currently only works via completely dumb brute-force until I have more time to experiment.  This means that it is *hilariously slow!*
+Currently only works via completely dumb brute-force until I have more time to experiment.  This means that it is *hilariously slow!*.
+
+It also doesn't work with hexagonal puzzles yet.
 
 #### Quickstart
 
