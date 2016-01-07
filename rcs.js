@@ -11,11 +11,9 @@
     // hexagonal puzzle
     if(jQuery("form.puzzle-hexagonal").length > 0)
     {
-      clues = [
-        // lol later
-        alert("Sorry, hexagonal puzzles aren't supported yet!");
-        return;
-      ];
+      // hex fix
+      alert("Sorry, hexagonal puzzles aren't supported yet!");
+      return;
     }
 
     // rectangular puzzle
@@ -38,13 +36,10 @@
       }
     }
 
-    // setup solution array
-    solution = createMultiDimArray.apply(this, dims);
-    zeroArray(solution);
+    console.log(dims);
 
     //setup status
-    var maxGuesses = Math.pow(chars.length, dims.reduce(function (a, b) { return a * b; }, 1));
-    jQuery("h1.ng-binding").append('<br /><small style="font-style: italic;">Solving: <span id="rcs-guess">1</span> / ' + maxGuesses + '</small>');
+    jQuery("h1.ng-binding").append('<br /><small style="font-style: italic;">Solving: <span id="rcs-guess">1</span></small>');
 
     // solve
     solve();
@@ -56,40 +51,6 @@
     // check for win condition
     var solved = true;
 
-    check:
-    for(var i = 0; i < clues.length; i++)
-    {
-      for(var j = 0; j < clues[i].length; j++)
-      {
-        // build word to test against RegExp
-        var word = '';
-
-        // need to recode this section to deal with arrays with more than 2 dimensions
-        if(i == 0)
-        {
-          for(var x = 0; x < solution[j].length; x++)
-          {
-            word += chars[solution[j][x]];
-          }
-        }
-
-        else if(i == 1)
-        {
-          for(var x = 0; x < solution.length; x++)
-          {
-            word += chars[solution[x][j]];
-          }
-        }
-
-        // run the test
-        if(!clues[i][j].test(word))
-        {
-          solved = false;
-          break check;
-        }
-      }
-    }
-
     if(solved)
     {
       // solution found
@@ -97,17 +58,9 @@
       elapsedTime = (endTime - startTime) / 1000;
       alert("Solved in " + elapsedTime + " seconds with " + guesses + " guesses!");
 
-      // need to recode this section to deal with arrays with more than 2 dimensions
+      // hex fix
 
       var answerQueue = [];
-
-      for(var i = 0; i < solution.length; i++)
-      {
-        for(var j = 0; j < solution[i].length; j++)
-        {
-          answerQueue.push(solution[i][j]);
-        }
-      }
 
       jQuery("input.char").each(function(){
         jQuery(this).val(chars[answerQueue.shift()]);
@@ -120,54 +73,11 @@
 
     else
     {
-      // increment solution and continue
+      // increment guesses and continue
       guesses++;
-      jQuery("#rcs-guess").text(guesses);
-      var incremented = {flag: false};
-      incrementArray(solution, chars.length, incremented);
       setTimeout(solve, 0);
     }
 
-  }
-
-  // http://stackoverflow.com/a/966938
-  function createMultiDimArray(length)
-  {
-    var arr = new Array(length || 0), i = length;
-    if(arguments.length > 1)
-    {
-      var args = Array.prototype.slice.call(arguments, 1);
-      while(i--) arr[length-1 - i] = createMultiDimArray.apply(this, args);
-    }
-    return arr;
-  }
-
-  // http://stackoverflow.com/a/15854485/3365483
-  function zeroArray(arr)
-  {
-    for(var i = 0; i < arr.length; i++)
-    {
-      if(Array.isArray(arr[i])) zeroArray(arr[i]);
-      else arr[i] = 0;
-    }
-  }
-
-  function incrementArray(arr, mod, incremented)
-  {
-    for(var i = 0; i < arr.length; i++)
-    {
-      if(Array.isArray(arr[i])) incrementArray(arr[i], mod, incremented);
-      else if(!incremented.flag)
-      {
-        arr[i]++;
-        if(arr[i] < mod)
-        {
-          incremented.flag = true;
-          return;
-        }
-        else arr[i] = 0;
-      }
-    }
   }
 
   var s = document.createElement("script");
